@@ -7,6 +7,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -16,17 +17,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  * SystemTerminationConfig
  * - Spring Batch Job 설정 클래스
  *
- * @Import(BatchConfig.class)
- * - BatchConfig에서 정의한 배치 관련 Bean(JobRepository, TransactionManager 등)을 가져와 사용.
+ * @Configuration
+ * - Spring Boot가 배치 관련 핵심 인프라 Bean(JobRepository, TransactionManager 등)을 자동 구성
  */
-@Import(BatchConfig.class)
+@Configuration
 public class SystemTerminationConfig {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
 
     private AtomicInteger processKilled = new AtomicInteger(0);
     private final int TERMINATION_TARGET = 5;
-
 
     /**
      * 생성자
