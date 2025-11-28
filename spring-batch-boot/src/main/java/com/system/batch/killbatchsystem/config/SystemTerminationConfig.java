@@ -8,7 +8,6 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -63,7 +62,7 @@ public class SystemTerminationConfig {
      */
 
     @Bean
-    private Step enterWorldStep() {
+    public Step enterWorldStep() {
         return new StepBuilder("enterWorldStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("System Termination 시뮬레이션 세계에 접속했습니다.");
@@ -76,7 +75,7 @@ public class SystemTerminationConfig {
      * Step: NPC 만남 및 미션 안내
      */
     @Bean
-    private Step meetNPCStep() {
+    public Step meetNPCStep() {
         return new StepBuilder("meetNPCStep", jobRepository)
                 .tasklet((contribution, chunkContext)->{
                     System.out.println("시스템 관리자 NPC를 만났습니다.");
@@ -92,7 +91,7 @@ public class SystemTerminationConfig {
      * - 목표 개수 도달 전까지 반복 실행
      */
     @Bean
-    private Step defeatProcessStep() {
+    public Step defeatProcessStep() {
         return new StepBuilder("defeatProcessStep", jobRepository)
                 .tasklet((contribution, chunkContext) ->{
                     int terminated = processKilled.incrementAndGet();
@@ -111,7 +110,7 @@ public class SystemTerminationConfig {
      * Step: 미션 완료 및 보상 안내
      */
     @Bean
-    private Step completeQuestStep() {
+    public Step completeQuestStep() {
         return new StepBuilder("completeQuestStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("미션 완료! 좀비 프로세스 " + TERMINATION_TARGET + "개 처형 성공!");
