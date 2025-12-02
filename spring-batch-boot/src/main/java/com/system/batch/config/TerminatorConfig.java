@@ -1,14 +1,17 @@
 package com.system.batch.config;
 
-import com.system.batch.config.parameters.SystemInfiltrationParameters;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.converter.JobParametersConverter;
+import org.springframework.batch.core.converter.JsonJobParametersConverter;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -24,9 +27,9 @@ public class TerminatorConfig {
     }
 
     @Bean
-    public Step terminationStep2(JobRepository jobRepository, PlatformTransactionManager transactionManager, Tasklet terminatorTasklet4) {
+    public Step terminationStep2(JobRepository jobRepository, PlatformTransactionManager transactionManager, Tasklet terminatorTasklet5) {
         return new StepBuilder("terminationStep2", jobRepository)
-                .tasklet(terminatorTasklet4, transactionManager)
+                .tasklet(terminatorTasklet5, transactionManager)
                 .build();
     }
 
@@ -86,29 +89,52 @@ public class TerminatorConfig {
 //        EASY, NORMAL, HARD, EXTREME
 //    }
 
+//    @Bean
+//    public Tasklet terminatorTasklet4(SystemInfiltrationParameters infiltrationParams){
+//        return (contribution, chungContext) -> {
+//            log.info("⚔️ 시스템 침투 작전 초기화!");
+//            log.info("임무 코드네임: {}", infiltrationParams.getMissionName());
+//            log.info("보안 레벨: {}", infiltrationParams.getSecurityLevel());
+//            log.info("작전 지휘관: {}", infiltrationParams.getOperationCommander());
+//
+//            // 보안 레벨에 따른 침투 난이도 계산
+//            int baseInfiltrationTime = 60; // 기본 침투 시간(분)
+//            int infiltrationMultiplier = switch (infiltrationParams.getSecurityLevel()) {
+//                case 1 -> 1; // 저보안
+//                case 2 -> 2; // 중보안
+//                case 3 -> 4; // 고보안
+//                case 4 -> 8; // 최고 보안
+//                default -> 1;
+//            };
+//
+//            int totalInfiltrationTime = baseInfiltrationTime * infiltrationMultiplier;
+//
+//            log.info("💥 시스템 해킹 난이도 분석 중...");
+//            log.info("🕒 예상 침투 시간: {}분", totalInfiltrationTime);
+//            log.info("🏆 시스템 장악 준비 완료!");
+//
+//            return RepeatStatus.FINISHED;
+//        };
+//    }
+
+
     @Bean
-    public Tasklet terminatorTasklet4(SystemInfiltrationParameters infiltrationParams){
-        return (contribution, chungContext) -> {
-            log.info("⚔️ 시스템 침투 작전 초기화!");
-            log.info("임무 코드네임: {}", infiltrationParams.getMissionName());
-            log.info("보안 레벨: {}", infiltrationParams.getSecurityLevel());
-            log.info("작전 지휘관: {}", infiltrationParams.getOperationCommander());
+    public JobParametersConverter jobParametersConverter() {
+        return new JsonJobParametersConverter();
+    }
 
-            // 보안 레벨에 따른 침투 난이도 계산
-            int baseInfiltrationTime = 60; // 기본 침투 시간(분)
-            int infiltrationMultiplier = switch (infiltrationParams.getSecurityLevel()) {
-                case 1 -> 1; // 저보안
-                case 2 -> 2; // 중보안
-                case 3 -> 4; // 고보안
-                case 4 -> 8; // 최고 보안
-                default -> 1;
-            };
+    @Bean
+    @StepScope
+    public Tasklet terminatorTasklet5(
+            @Value("#{jobParameters['infiltrationTargets']}") String infiltrationTargets
+    ) {
+        return (contribution, chunkContext) -> {
+            String[] targets = infiltrationTargets.split(",");
 
-            int totalInfiltrationTime = baseInfiltrationTime * infiltrationMultiplier;
-
-            log.info("💥 시스템 해킹 난이도 분석 중...");
-            log.info("🕒 예상 침투 시간: {}분", totalInfiltrationTime);
-            log.info("🏆 시스템 장악 준비 완료!");
+            log.info("⚡ 침투 작전 개시");
+            log.info("첫 번째 타겟: {} 침투 시작", targets[0]);
+            log.info("마지막 타겟: {} 에서 집결", targets[1]);
+            log.info("🎯 임무 전달 완료");
 
             return RepeatStatus.FINISHED;
         };
