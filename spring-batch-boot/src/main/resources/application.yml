@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: spring-batch-boot
+  batch:
+    job:
+#      name: systemTerminationSimulationJob
+      name: zombieCleanupJob

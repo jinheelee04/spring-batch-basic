@@ -1,4 +1,4 @@
-package com.system.batch.killbatchsystem.config;
+package com.system.batch.config;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
