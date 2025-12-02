@@ -9,9 +9,8 @@ import org.springframework.batch.repeat.RepeatStatus;
 import java.io.File;
 
 /**
- * Tasklet 사용 시나리오
- * 1. 오래된 파일 삭제
- * - 지정된 기간보다 오래된 파일들을 찾아 제거한다.
+ * 오래된 파일 삭제 Tasklet
+ * - 지정된 기간보다 오래된 파일들을 찾아 제거
  */
 @Slf4j
 public class DeleteOldFilesTasklet implements Tasklet {
