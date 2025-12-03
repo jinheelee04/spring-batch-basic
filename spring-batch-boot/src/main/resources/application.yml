@@ -3,7 +3,8 @@ spring:
     name: spring-batch-boot
   batch:
     job:
-      name: terminatorJob
+      name: systemDestructionJob
+#      name: terminatorJob
 #      name: processTerminatorJob
 #      name: deleteOldFilesJob
 #      name: systemTerminationSimulationJob
