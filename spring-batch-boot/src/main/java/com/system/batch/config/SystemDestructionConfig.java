@@ -1,10 +1,10 @@
 package com.system.batch.config;
 
-import com.system.batch.util.SystemDestructionValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.DefaultJobParametersValidator;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -22,11 +22,13 @@ public class SystemDestructionConfig {
     @Bean
     public Job systemDestructionJob(
             JobRepository jobRepository,
-            Step systemDestructionStep,
-            SystemDestructionValidator validator
+            Step systemDestructionStep
     ){
         return new JobBuilder("systemDestructionJob", jobRepository)
-                .validator(validator)
+                .validator(new DefaultJobParametersValidator(
+                        new String[]{"destructionPower"}, // 필수 파라미터
+                        new String[]{"targetSystem"}   // 선택적 파라미터
+                ))
                 .start(systemDestructionStep)
                 .build();
     }
