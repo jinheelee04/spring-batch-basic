@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: spring-batch-boot
+  batch:
+    job:
+      name: killDashNineJob
+#      name: systemTerminationJob2
+#      name: systemInfiltrationJob
+#       name: serverRoomControlJob
+#      name: systemMonitoringJob
+#      name: systemDestructionJob
+#      name: terminatorJob
+#      name: processTerminatorJob
+#      name: deleteOldFilesJob
+#      name: systemTerminationSimulationJob
+#      name: zombieCleanupJob
+
