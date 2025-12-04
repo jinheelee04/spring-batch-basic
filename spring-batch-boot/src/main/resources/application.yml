@@ -3,7 +3,8 @@ spring:
     name: spring-batch-boot
   batch:
     job:
-      name: systemInfiltrationJob
+      name: systemTerminationJob2
+#      name: systemInfiltrationJob
 #       name: serverRoomControlJob
 #      name: systemMonitoringJob
 #      name: systemDestructionJob
