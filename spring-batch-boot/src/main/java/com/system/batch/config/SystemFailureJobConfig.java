@@ -46,40 +46,41 @@ public class SystemFailureJobConfig {
                 .build();
     }
 
+
     /**
-     * FlatFileItemReader 구성
-     * .name() : Reader 식별자 설정
-     * .resource() : 처리 대상 파일 지정
-     * .delimited() : 구분자 기반 파일 읽기 모드 활성화
-     * .delimiter(",") : 쉼표로 데이터 구분
-     * .names() : 각 필드 식별자(SystemFailure의 프로퍼티 이름) 매핑
-     * .targetType() : 변환 대상 객체(SystemFailure) 지정
-     * .linesToSkip() : 헤더 라인 제거
-     * .strict(): 엄격한 규율 적용
+     * CSV 파일을 읽어 한 줄씩 SystemFailure 객체로 변환하는 FlatFileItemReader 구성
+     *
+     * 구성 요약
+     * - name           : Reader 식별용 이름
+     * - resource       : 입력 파일 경로 (jobParameter로 주입)
+     * - delimited      : 구분자 기반(line tokenizer) 모드 활성화
+     * - delimiter(",") : 필드 구분자(쉼표). CSV면 기본이지만 명시적 지정 권장
+     * - names(...)     : CSV 컬럼 순서를 객체 필드명과 매핑 (1:1 순서 대응)
+     * - targetType     : 매핑 대상 타입 지정(BeanWrapperFieldSetMapper 사용)
+     * - linesToSkip(1) : 첫 줄(헤더) 스킵
+     * - strict         : 파일/컬럼 일치성 검사 강도(기본 true, 필요 시 설정)
      */
     @Bean
     @StepScope
     public FlatFileItemReader<SystemFailure> systemFailureReader(
-            @Value("#{jobParameters['inputFile']}") String inputFile // 타겟 파일 경로
+            @Value("#{jobParameters['inputFile']}") String inputFile // 입력 CSV 파일 경로
     ) {
-        return new FlatFileItemReaderBuilder<SystemFailure>() // 생성될 FlatFileItemReader가 파일에서 읽은 한 줄의 데이터를 SystemFailure 객체로 변환하도록 지정
-                .name("systemFailureItemReader") // FlatFileItemReader를 식별하기 위한 고유 이름
-                .resource(new FileSystemResource(inputFile)) 
-                .delimited()// FlatFileItemReader에게 읽어들일 파일이 구분자로 분리된 형식임을 알리는 설정, DefaultLineMapper가 사용할 LineTokenizer 구현체로 DelimitedLineTokenizer가 지정됨
-                .delimiter(",") // 구분자 문자 지정 (DelimitedLineTokenizer의 기본 구분자가 쉼표이기 때문에, CSV 파일을 처리할 때는 생략 가능하지만 코드의 명시성을 위해 구분자를 직접 지정하는 것을 권장)
-                .names("errorId",
+        return new FlatFileItemReaderBuilder<SystemFailure>()
+                .name("systemFailureItemReader")               // 배치 모니터링 시 식별 가능한 이름
+                .resource(new FileSystemResource(inputFile))   // 파일 리소스 지정
+                .delimited()                                   // 구분자 기반 토크나이저 사용
+                .delimiter(",")                                // 구분자: ',' (CSV)
+                .names(                                        // CSV 컬럼 → 객체 프로퍼티 매핑 (순서 중요)
+                        "errorId",
                         "errorDateTime",
                         "severity",
                         "processId",
                         "errorMessage"
-                ) // FieldSet의 names 필드에 사용할 객체의 프로퍼티 이름을 전달(데이터의 각 토큰과 순서대로 1:1 매핑됨)
-                .targetType(SystemFailure.class) // 매핑 대상 클래스 지정, 기본으로 사용되는 FieldSetMapper 구현체인 BeanWrapperFieldSetMapper에서 FieldSet을 객체로 매핑할 대상 도메인 클래스를 지정
-                .linesToSkip(1) // 파일 헤더 라인 건너뛰기(첫 번째 줄 건너뛰고 두 번째 줄부터 실제 데이터로 처리한다)
-//                .comments("#") // 특정 문자로 시작하는 라인을 주석으로 처리, 기본값 '#'
-//                .strict(true)
-// 파일 검증 강도 설정, 기본값 true
-// true: 파일 누락 or tokens의 길이가 names()에 전달된 객체 프로퍼티 이름의 길이와 다를 경우 예외를 발생,
-// false: 파일이 존재하지 않아도 경고만 남기고 진행, 토큰수를 자동 보정
+                )
+                .targetType(SystemFailure.class)               // FieldSet → SystemFailure 변환 대상 타입
+                .linesToSkip(1)                                // 헤더 라인 제거(1줄)
+                // .comments("#")                              // '#'로 시작하는 줄을 주석으로 간주(선택 사항)
+                // .strict(true)                               // 기본 true: 파일 없거나 컬럼 수 불일치 시 예외
                 .build();
     }
 
