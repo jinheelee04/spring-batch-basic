@@ -12,6 +12,7 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.transform.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -60,28 +61,49 @@ public class SystemFailureJobConfig {
      * - linesToSkip(1) : 첫 줄(헤더) 스킵
      * - strict         : 파일/컬럼 일치성 검사 강도(기본 true, 필요 시 설정)
      */
+//    @Bean
+//    @StepScope
+//    public FlatFileItemReader<SystemFailure> systemFailureItemReader(
+//            @Value("#{jobParameters['inputFile']}") String inputFile // 입력 CSV 파일 경로
+//    ) {
+//        return new FlatFileItemReaderBuilder<SystemFailure>()
+//                .name("systemFailureItemReader")               // 배치 모니터링 시 식별 가능한 이름
+//                .resource(new FileSystemResource(inputFile))   // 파일 리소스 지정
+//                .delimited()                                   // 구분자 기반 토크나이저 사용
+//                .delimiter(",")                                // 구분자: ',' (CSV)
+//                .names(                                        // CSV 컬럼 → 객체 프로퍼티 매핑 (순서 중요)
+//                        "errorId",
+//                        "errorDateTime",
+//                        "severity",
+//                        "processId",
+//                        "errorMessage"
+//                )
+//                .targetType(SystemFailure.class)               // FieldSet → SystemFailure 변환 대상 타입
+//                .linesToSkip(1)                                // 헤더 라인 제거(1줄)
+//                // .comments("#")                              // '#'로 시작하는 줄을 주석으로 간주(선택 사항)
+//                // .strict(true)                               // 기본 true: 파일 없거나 컬럼 수 불일치 시 예외
+//                .build();
+//    }
+
     @Bean
     @StepScope
-    public FlatFileItemReader<SystemFailure> systemFailureReader(
-            @Value("#{jobParameters['inputFile']}") String inputFile // 입력 CSV 파일 경로
-    ) {
+    public FlatFileItemReader<SystemFailure> systemFailureItemReader(
+            @Value("#{jobParameters['inputFile']}") String inputFile){
         return new FlatFileItemReaderBuilder<SystemFailure>()
-                .name("systemFailureItemReader")               // 배치 모니터링 시 식별 가능한 이름
-                .resource(new FileSystemResource(inputFile))   // 파일 리소스 지정
-                .delimited()                                   // 구분자 기반 토크나이저 사용
-                .delimiter(",")                                // 구분자: ',' (CSV)
-                .names(                                        // CSV 컬럼 → 객체 프로퍼티 매핑 (순서 중요)
-                        "errorId",
-                        "errorDateTime",
-                        "severity",
-                        "processId",
-                        "errorMessage"
-                )
-                .targetType(SystemFailure.class)               // FieldSet → SystemFailure 변환 대상 타입
-                .linesToSkip(1)                                // 헤더 라인 제거(1줄)
-                // .comments("#")                              // '#'로 시작하는 줄을 주석으로 간주(선택 사항)
-                // .strict(true)                               // 기본 true: 파일 없거나 컬럼 수 불일치 시 예외
-                .build();
+                .name("systemFailureItemReader")
+                .resource(new FileSystemResource(inputFile))
+                .fixedLength() // DefaultLineMapper 가 사용할 LineTokenizer 구현체로 FixedLengthTokenizer 지정
+                .columns(new Range[]{
+                        new Range(1, 8),    // errorId: ERR001 + 공백 2칸
+                        new Range(9, 29),   // errorDateTime: 날짜시간 + 공백 2칸
+                        new Range(30, 39),  // severity: CRITICAL/FATAL + 패딩
+                        new Range(40, 45),  // processId: 1234 + 공백 2칸
+                        new Range(46, 66)   // errorMessage: 메시지 + \n
+                })
+                .names("errorId", "errorDateTime", "severity" , "processId", "errorMessage")
+                .targetType(SystemFailure.class)
+//                .strict(true)  // true: 파일에서 읽은 랑니의 길이가 Range에 지정된 최대 길이와 다를 경우 예외 발생함
+                 .build();
     }
 
     @Bean
