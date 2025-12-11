@@ -3,7 +3,8 @@ spring:
     name: spring-batch-boot
   batch:
     job:
-      name: systemFailureJob
+      name: logAnalysisJob
+#      name: systemFailureJob
 #      name: killDashNineJob
 #      name: systemTerminationJob2
 #      name: systemInfiltrationJob
