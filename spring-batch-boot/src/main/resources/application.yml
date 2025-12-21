@@ -1,19 +1,16 @@
 spring:
-  application:
-    name: spring-batch-boot
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:org/springframework/batch/core/schema-drop-postgresql.sql
   batch:
+    jdbc:
+      initialize-schema: always
     job:
-      name: logAnalysisJob
-#      name: systemFailureJob
-#      name: killDashNineJob
-#      name: systemTerminationJob2
-#      name: systemInfiltrationJob
-#       name: serverRoomControlJob
-#      name: systemMonitoringJob
-#      name: systemDestructionJob
-#      name: terminatorJob
-#      name: processTerminatorJob
-#      name: deleteOldFilesJob
-#      name: systemTerminationSimulationJob
-#      name: zombieCleanupJob
+      name: helloWorldJob
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    driver-class-name: org.postgresql.Driver
+    username: root
+    password: test123
 
